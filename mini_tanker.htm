@@ -1,0 +1,237 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mini tanker | play for free on games.com</title>
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #000;
+        }
+        canvas {
+            display: block;
+            margin: auto;
+            background-color: #444;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        canvas.width = 800;
+        canvas.height = 600;
+
+        const tank = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height / 2 - 25,
+            width: 50,
+            height: 50,
+            speed: 5,
+            dx: 0,
+            dy: 0,
+            direction: 'up'
+        };
+
+        const bullets = [];
+        const enemies = [];
+
+        function drawTank() {
+            ctx.fillStyle = 'green';
+            ctx.fillRect(tank.x, tank.y, tank.width, tank.height);
+            ctx.fillStyle = 'black';
+            if (tank.direction === 'up') {
+                ctx.fillRect(tank.x + tank.width / 2 - 5, tank.y - 10, 10, 20);
+            } else if (tank.direction === 'down') {
+                ctx.fillRect(tank.x + tank.width / 2 - 5, tank.y + tank.height - 10, 10, 20);
+            } else if (tank.direction === 'left') {
+                ctx.fillRect(tank.x - 10, tank.y + tank.height / 2 - 5, 20, 10);
+            } else if (tank.direction === 'right') {
+                ctx.fillRect(tank.x + tank.width - 10, tank.y + tank.height / 2 - 5, 20, 10);
+            }
+        }
+
+        function drawBullets() {
+            ctx.fillStyle = 'red';
+            bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        function drawEnemies() {
+            ctx.fillStyle = 'blue';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+        }
+
+        function moveTank() {
+            tank.x += tank.dx;
+            tank.y += tank.dy;
+
+            if (tank.x < 0) {
+                tank.x = 0;
+            }
+
+            if (tank.x + tank.width > canvas.width) {
+                tank.x = canvas.width - tank.width;
+            }
+
+            if (tank.y < 0) {
+                tank.y = 0;
+            }
+
+            if (tank.y + tank.height > canvas.height) {
+                tank.y = canvas.height - tank.height;
+            }
+        }
+
+        function moveBullets() { 
+	bullets.forEach((bullet, index) => {
+                if (bullet.direction === 'up') {
+                    bullet.y -= bullet.speed;
+                } else if (bullet.direction === 'down') {
+                    bullet.y += bullet.speed;
+                } else if (bullet.direction === 'left') {
+                    bullet.x -= bullet.speed;
+                } else if (bullet.direction === 'right') {
+                    bullet.x += bullet.speed;
+                }
+
+                if (bullet.x < 0 || bullet.x > canvas.width || bullet.y < 0 || bullet.y > canvas.height) {
+                    bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function moveEnemies() {
+            enemies.forEach(enemy => {
+                if (enemy.direction === 'up') {
+                    enemy.y -= enemy.speed;
+                } else if (enemy.direction === 'down') {
+                    enemy.y += enemy.speed;
+                } else if (enemy.direction === 'left') {
+                    enemy.x -= enemy.speed;
+                } else if (enemy.direction === 'right') {
+                    enemy.x += enemy.speed;
+                }
+
+                if (enemy.x < 0 || enemy.x + enemy.width > canvas.width) {
+                    enemy.direction = enemy.direction === 'left' ? 'right' : 'left';
+                }
+
+                if (enemy.y < 0 || enemy.y + enemy.height > canvas.height) {
+                    enemy.direction = enemy.direction === 'up' ? 'down' : 'up';
+                }
+            });
+        }
+
+        function addBullet() {
+            let bulletX = tank.x + tank.width / 2 - 2.5;
+            let bulletY = tank.y;
+            if (tank.direction === 'up') {
+                bulletY = tank.y - 10;
+            } else if (tank.direction === 'down') {
+                bulletY = tank.y + tank.height;
+            } else if (tank.direction === 'left') {
+                bulletX = tank.x - 10;
+                bulletY = tank.y + tank.height / 2 - 2.5;
+            } else if (tank.direction === 'right') {
+                bulletX = tank.x + tank.width;
+                bulletY = tank.y + tank.height / 2 - 2.5;
+            }
+
+            bullets.push({
+                x: bulletX,
+                y: bulletY,
+                width: 5,
+                height: 5,
+                speed: 7,
+                direction: tank.direction
+            });
+        }
+
+        function addEnemy() {
+            const enemySize = 50;
+            const enemyX = Math.random() * (canvas.width - enemySize);
+            const enemyY = Math.random() * (canvas.height - enemySize);
+            const enemySpeed = 2;
+            const directions = ['up', 'down', 'left', 'right'];
+            const enemyDirection = directions[Math.floor(Math.random() * directions.length)];
+
+            enemies.push({
+                x: enemyX,
+                y: enemyY,
+                width: enemySize,
+                height: enemySize,
+                speed: enemySpeed,
+                direction: enemyDirection
+            });
+        }
+
+        function detectCollisions() {
+            bullets.forEach((bullet, bulletIndex) => {
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        bullets.splice(bulletIndex, 1);
+                        enemies.splice(enemyIndex, 1);
+                    }
+                });
+            });
+        }
+
+        function clearCanvas() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+        }
+
+        function update() {
+            clearCanvas();
+            drawTank();
+            drawBullets();
+            drawEnemies();
+            moveTank();
+            moveBullets();
+            moveEnemies();
+            detectCollisions();
+            requestAnimationFrame(update);
+        }
+
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'd') {
+                tank.dx = tank.speed;
+                tank.direction = 'right';
+            } else if (e.key === 'ArrowLeft' || e.key === 'a') {
+                tank.dx = -tank.speed;
+                tank.direction = 'left';
+            } else if (e.key === 'ArrowUp' || e.key === 'w') {
+                tank.dy = -tank.speed;
+                tank.direction = 'up';
+            } else if (e.key === 'ArrowDown' || e.key === 's') {
+                tank.dy = tank.speed;
+                tank.direction = 'down';
+            } else if (e.key === ' ') {
+                addBullet();
+            }
+        });
+
+        document.addEventListener('keyup', (e) => {
+            if (e.key === 'ArrowRight' || e.key === 'd' || e.key === 'ArrowLeft' || e.key === 'a') {
+                tank.dx = 0;
+            } else if (e.key === 'ArrowUp' || e.key === 'w' || e.key === 'ArrowDown' || e.key === 's') {
+                tank.dy = 0;
+            }
+        });
+
+        setInterval(addEnemy, 3000);
+        update();
+    </script>
+</body>
+</html>

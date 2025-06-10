@@ -1,0 +1,180 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>mini tycoon | play for free on games.com</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            text-align: center;
+        }
+        #game {
+            margin: 20px auto;
+            width: 300px;
+            height: 300px;
+            border: 1px solid #000;
+            position: relative;
+        }
+        .building, .store, .factory, .hotel {
+            width: 50px;
+            height: 50px;
+            position: absolute;
+        }
+        .building {
+            background-color: #f00;
+        }
+        .store {
+            background-color: #00f;
+        }
+        .factory {
+            background-color: #0f0;
+        }
+        .hotel {
+            background-color: #FF0000;
+        }
+    </style>
+</head>
+<body>
+    <h1>Tycoon Game</h1>
+    <div id="game"></div>
+    <p>Money: $<span id="money">0</span></p>
+    <p>Supplies: <span id="supplies">0</span></p>
+    <button onclick="addStore()">Add Store ($20)</button>
+    <button onclick="addFactory()">Add Factory ($30)</button>
+    <button onclick="addHotel()">Add Hotel ($50)</button>
+    <button onclick="saveGame()">Save Game</button>
+    <button onclick="loadGame()">Load Game</button>
+
+    <script>
+        let buildingCount = 0;
+        let storeCount = 0;
+        let factoryCount = 0;
+        let hotelCount = 0;
+        let money = 0;
+        let supplies = 0;
+
+        function updateMoney() {
+            document.getElementById('money').innerText = money;
+        }
+
+        function updateSupplies() {
+            document.getElementById('supplies').innerText = supplies;
+        }
+
+        function addBuilding() {
+            if (money >= 10) {
+                const gameArea = document.getElementById('game');
+                const building = document.createElement('div');
+                building.className = 'building';
+                building.style.left = `${Math.random() * 250}px`;
+                building.style.top = `${Math.random() * 250}px`;
+                gameArea.appendChild(building);
+                buildingCount++;
+                money -= 10;
+                updateMoney();
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function addStore() {
+            if (money >= 20) {
+                const gameArea = document.getElementById('game');
+                const store = document.createElement('div');
+                store.className = 'store';
+                store.style.left = `${Math.random() * 250}px`;
+                store.style.top = `${Math.random() * 250}px`;
+                gameArea.appendChild(store);
+                storeCount++;
+                money -= 20;
+                updateMoney();
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function addFactory() {
+            if (money >= 30) {
+                const gameArea = document.getElementById('game');
+                const factory = document.createElement('div');
+                factory.className = 'factory';
+                factory.style.left = `${Math.random() * 250}px`;
+                factory.style.top = `${Math.random() * 250}px`;
+                gameArea.appendChild(factory);
+                factoryCount++;
+                money -= 30;
+                updateMoney();
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function addHotel() {
+            if (money >= 50) {
+                const gameArea = document.getElementById('game');
+                const hotel = document.createElement('div');
+                hotel.className = 'hotel';
+                hotel.style.left = `${Math.random() * 250}px`;
+                hotel.style.top = `${Math.random() * 250}px`;
+                gameArea.appendChild(hotel);
+                hotelCount++;
+                money -= 50;
+                updateMoney();
+            } else {
+                alert('Not enough money!');
+            }
+        }
+
+        function earnMoney() {
+            money += 20; // Earnings from the initial building
+            if (supplies >= storeCount * 10) {
+                money += storeCount * 10; // Earnings from stores
+                supplies -= storeCount * 10; // Supplies consumed by stores
+            }
+            money += hotelCount * 50; // Earnings from hotels
+            updateMoney();
+            updateSupplies();
+        }
+
+        function produceSupplies() {
+            supplies += factoryCount * 10; // Supplies produced by factories
+            updateSupplies();
+        }
+
+        function saveGame() {
+            const gameData = {
+                buildingCount,
+                storeCount,
+                factoryCount,
+                hotelCount,
+                money,
+                supplies
+            };
+            localStorage.setItem('tycoonGameData', JSON.stringify(gameData));
+            alert('Game saved!');
+        }
+
+        function loadGame() {
+            const savedData = localStorage.getItem('tycoonGameData');
+            if (savedData) {
+                const gameData = JSON.parse(savedData);
+                buildingCount = gameData.buildingCount;
+                storeCount = gameData.storeCount;
+                factoryCount = gameData.factoryCount;
+                hotelCount = gameData.hotelCount;
+                money = gameData.money;
+                supplies = gameData.supplies;
+                updateMoney();
+                updateSupplies();
+                alert('Game loaded!');
+            } else {
+                alert('No saved game found.');
+            }
+        }
+
+        setInterval(earnMoney, 10000); // Earn money every 10 seconds
+        setInterval(produceSupplies, 10000); // Produce supplies every 10 seconds
+    </script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>racer | play for free on games.com</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        canvas {
+            background-color: #000;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="400" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const carWidth = 50;
+        const carHeight = 100;
+        let carX = (canvas.width - carWidth) / 2;
+        const carY = canvas.height - carHeight - 10;
+        const carSpeed = 5;
+
+        const obstacles = [];
+        const obstacleWidth = 50;
+        const obstacleHeight = 100;
+        const obstacleSpeed = 3;
+
+        let score = 0;
+        let gameOver = false;
+
+        function drawCar() {
+            ctx.fillStyle = 'red';
+            ctx.fillRect(carX, carY, carWidth, carHeight);
+        }
+
+        function drawObstacles() {
+            ctx.fillStyle = 'blue';
+            obstacles.forEach(obstacle => {
+                ctx.fillRect(obstacle.x, obstacle.y, obstacleWidth, obstacleHeight);
+            });
+        }
+
+        function updateObstacles() {
+            obstacles.forEach(obstacle => {
+                obstacle.y += obstacleSpeed;
+            });
+
+            if (obstacles.length === 0 || obstacles[obstacles.length - 1].y > 150) {
+                const obstacleX = Math.random() * (canvas.width - obstacleWidth);
+                obstacles.push({ x: obstacleX, y: -obstacleHeight });
+            }
+
+            obstacles.forEach((obstacle, index) => {
+                if (obstacle.y > canvas.height) {
+                    obstacles.splice(index, 1);
+                }
+            });
+        }
+
+        function checkCollision() {
+            obstacles.forEach(obstacle => {
+                if (
+                    carX < obstacle.x + obstacleWidth &&
+                    carX + carWidth > obstacle.x &&
+                    carY < obstacle.y + obstacleHeight &&
+                    carY + carHeight > obstacle.y
+                ) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function updateGame() {
+            if (gameOver) {
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 75, canvas.height / 2);
+                ctx.fillText(`Score: ${score}`, canvas.width / 2 - 50, canvas.height / 2 + 40);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawCar();
+            drawObstacles();
+            updateObstacles();
+            checkCollision();
+
+            score++;
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 20);
+
+            requestAnimationFrame(updateGame);
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'ArrowLeft' && carX > 0) {
+                carX -= carSpeed;
+            } else if (event.key === 'ArrowRight' && carX < canvas.width - carWidth) {
+                carX += carSpeed;
+            }
+        });
+
+        updateGame();
+    </script>
+</body>
+</html>
+<p>what is new in this game:</p>
+<p>scoring<br>you die when you hit another car</p>

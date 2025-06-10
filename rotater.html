@@ -1,0 +1,85 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>3D Rotator with Color Change</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            margin: 0;
+            flex-direction: column;
+        }
+        .cube {
+            width: 200px;
+            height: 200px;
+            position: relative;
+            transform-style: preserve-3d;
+            transform: rotateX(0) rotateY(0);
+            transition: transform 0.5s;
+        }
+        .cube div {
+            position: absolute;
+            width: 200px;
+            height: 200px;
+            background: rgba(255, 0, 0, 0.5);
+            border: 1px solid #ccc;
+        }
+        .front  { transform: translateZ(100px); }
+        .back   { transform: rotateY(180deg) translateZ(100px); }
+        .left   { transform: rotateY(-90deg) translateZ(100px); }
+        .right  { transform: rotateY(90deg) translateZ(100px); }
+        .top    { transform: rotateX(90deg) translateZ(100px); }
+        .bottom { transform: rotateX(-90deg) translateZ(100px); }
+    </style>
+</head>
+<body>
+    <input type="color" id="colorPicker" value="#ff0000">
+    <div class="cube" id="cube">
+        <div class="front"></div>
+        <div class="back"></div>
+        <div class="left"></div>
+        <div class="right"></div>
+        <div class="top"></div>
+        <div class="bottom"></div>
+    </div>
+
+    <script>
+        let cube = document.getElementById('cube');
+        let colorPicker = document.getElementById('colorPicker');
+        let startX, startY, startRotateX = 0, startRotateY = 0;
+
+        cube.addEventListener('mousedown', function(e) {
+            startX = e.clientX;
+            startY = e.clientY;
+            document.addEventListener('mousemove', onMouseMove);
+            document.addEventListener('mouseup', onMouseUp);
+        });
+
+        function onMouseMove(e) {
+            let deltaX = e.clientX - startX;
+            let deltaY = e.clientY - startY;
+            cube.style.transform = `rotateX(${startRotateX - deltaY}deg) rotateY(${startRotateY + deltaX}deg)`;
+        }
+
+        function onMouseUp(e) {
+            startRotateX -= e.clientY - startY;
+            startRotateY += e.clientX - startX;
+            document.removeEventListener('mousemove', onMouseMove);
+            document.removeEventListener('mouseup', onMouseUp);
+        }
+
+        colorPicker.addEventListener('input', function() {
+            let color = colorPicker.value;
+            let faces = cube.querySelectorAll('div');
+            faces.forEach(face => {
+                face.style.backgroundColor = color;
+            });
+        });
+    </script>
+</body>
+</html>

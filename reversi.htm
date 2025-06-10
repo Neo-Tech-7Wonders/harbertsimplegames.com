@@ -1,0 +1,107 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Reversi | play for free on games.com</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+        }
+        #board {
+            display: grid;
+            grid-template-columns: repeat(8, 50px);
+            grid-template-rows: repeat(8, 50px);
+            gap: 2px;
+        }
+        .cell {
+            width: 50px;
+            height: 50px;
+            background-color: green;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 24px;
+            cursor: pointer;
+        }
+        .black {
+            background-color: black;
+            border-radius: 50%;
+        }
+        .white {
+            background-color: white;
+            border-radius: 50%;
+        }
+    </style>
+</head>
+<body>
+    <div id="board"></div>
+    <script>
+        const board = document.getElementById('board');
+        const size = 8;
+        let currentPlayer = 'black';
+
+        const createBoard = () => {
+            for (let i = 0; i < size * size; i++) {
+                const cell = document.createElement('div');
+                cell.classList.add('cell');
+                cell.addEventListener('click', () => makeMove(cell, i));
+                board.appendChild(cell);
+            }
+            initializeGame();
+        };
+
+        const initializeGame = () => {
+            const cells = document.querySelectorAll('.cell');
+            cells[27].classList.add('white');
+            cells[28].classList.add('black');
+            cells[35].classList.add('black');
+            cells[36].classList.add('white');
+        };
+
+        const makeMove = (cell, index) => {
+            if (cell.classList.contains('black') || cell.classList.contains('white')) return;
+            const cells = document.querySelectorAll('.cell');
+            const directions = [-1, 1, -8, 8, -9, 9, -7, 7];
+            let validMove = false;
+
+            directions.forEach(direction => {
+                let i = index + direction;
+                let toFlip = [];
+                while (i >= 0 && i < size * size && cells[i].classList.contains(opponent())) {
+                    toFlip.push(i);
+                    i += direction;
+                }
+                if (i >= 0 && i < size * size && cells[i].classList.contains(currentPlayer)) {
+                    toFlip.forEach(flipIndex => cells[flipIndex].classList.replace(opponent(), currentPlayer));
+                    validMove = true;
+                }
+            });
+
+            if (validMove) {
+                cell.classList.add(currentPlayer);
+                currentPlayer = currentPlayer === 'black' ? 'white' : 'black';
+                checkGameOver();
+            }
+        };
+
+        const opponent = () => currentPlayer === 'black' ? 'white' : 'black';
+
+        const checkGameOver = () => {
+            const cells = document.querySelectorAll('.cell');
+            const opponentPieces = Array.from(cells).filter(cell => cell.classList.contains(opponent()));
+            if (opponentPieces.length === 0) {
+                alert(`${currentPlayer === 'black' ? 'White' : 'Black'} wins! Game over.`);
+                board.innerHTML = '';
+                createBoard();
+            }
+        };
+
+        createBoard();
+    </script>
+</body>
+</html>

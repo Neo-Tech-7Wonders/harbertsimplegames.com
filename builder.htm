@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>2D Builder | play for free on games.com</title>
+    <style>
+        body {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            background-color: #f0f0f0;
+            margin: 0;
+        }
+        canvas {
+            border: 1px solid black;
+        }
+        #colorPicker {
+            margin: 10px;
+        }
+        #saveButton {
+            margin: 10px;
+        }
+    </style>
+</head>
+<body>
+    <input type="color" id="colorPicker" value="#0000ff">
+    <button id="saveButton">Save as PNG</button>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const colorPicker = document.getElementById('colorPicker');
+        const saveButton = document.getElementById('saveButton');
+
+        const blockSize = 20;
+        const blocks = [];
+
+        function drawBlock(x, y, color) {
+            ctx.fillStyle = color;
+            ctx.fillRect(x, y, blockSize, blockSize);
+        }
+
+        function addBlock(x, y, color) {
+            blocks.push({ x, y, color });
+            drawBlock(x, y, color);
+        }
+
+        function removeBlock(x, y) {
+            const index = blocks.findIndex(block => block.x === x && block.y === y);
+            if (index !== -1) {
+                blocks.splice(index, 1);
+                redrawBlocks();
+            }
+        }
+
+        function redrawBlocks() {
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawGrid();
+            blocks.forEach(block => drawBlock(block.x, block.y, block.color));
+        }
+
+        canvas.addEventListener('click', (event) => {
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((event.clientX - rect.left) / blockSize) * blockSize;
+            const y = Math.floor((event.clientY - rect.top) / blockSize) * blockSize;
+            const color = colorPicker.value;
+            addBlock(x, y, color);
+        });
+
+        canvas.addEventListener('contextmenu', (event) => {
+            event.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const x = Math.floor((event.clientX - rect.left) / blockSize) * blockSize;
+            const y = Math.floor((event.clientY - rect.top) / blockSize) * blockSize;
+            removeBlock(x, y);
+        });
+
+        saveButton.addEventListener('click', () => {
+            const link = document.createElement('a');
+            link.download = 'canvas.png';
+            link.href = canvas.toDataURL();
+            link.click();
+        });
+
+        function drawGrid() {
+            ctx.strokeStyle = '#ddd';
+            for (let x = 0; x < canvas.width; x += blockSize) {
+                ctx.beginPath();
+                ctx.moveTo(x, 0);
+                ctx.lineTo(x, canvas.height);
+                ctx.stroke();
+            }
+            for (let y = 0; y < canvas.height; y += blockSize) {
+                ctx.beginPath();
+                ctx.moveTo(0, y);
+                ctx.lineTo(canvas.width, y);
+                ctx.stroke();
+            }
+        }
+
+        function init() {
+            drawGrid();
+        }
+
+        init();
+    </script>
+</body>
+</html>
+<p>what is new in this game:</p>
+<p>you can change the color of the blocks</p>
+<p>you can save the game</P>
+<p>you can right-click on blocks to delete them</p>

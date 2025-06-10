@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Click the Button Game</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #f0f0f0;
+            font-family: Arial, sans-serif;
+        }
+        #game {
+            text-align: center;
+        }
+        #button {
+            padding: 20px;
+            font-size: 20px;
+            cursor: pointer;
+        }
+        #cpm {
+            font-size: 24px;
+            margin-top: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <button id="button">Click me!</button>
+        <div id="cpm">CPM: 0</div>
+    </div>
+
+    <script>
+        let score = 0;
+        let startTime = new Date().getTime();
+        const button = document.getElementById('button');
+        const cpmDisplay = document.getElementById('cpm');
+
+        button.addEventListener('click', () => {
+            score++;
+        });
+
+        const updateCPM = () => {
+            const currentTime = new Date().getTime();
+            const elapsedTime = (currentTime - startTime) / 1000 / 60; // Convert to minutes
+            const cpm = (score / elapsedTime).toFixed(2);
+            cpmDisplay.textContent = 'CPM: ' + cpm;
+        };
+
+        setInterval(updateCPM, 1000); // Update CPM every second
+    </script>
+</body>
+</html>

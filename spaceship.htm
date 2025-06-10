@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>inter galactic shooter | play for free on games.com</title>
+    <style>
+        body {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+            background-color: #FFFFFF;
+            margin: 0;
+        }
+        canvas {
+            background-color: #111;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="gameCanvas" width="800" height="600"></canvas>
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+
+        const spaceship = {
+            x: canvas.width / 2 - 25,
+            y: canvas.height - 60,
+            width: 50,
+            height: 50,
+            speed: 10,
+            bullets: []
+        };
+
+        const enemies = [];
+        const enemySpeed = 2;
+        const bulletSpeed = 10;
+        let score = 0;
+        let gameOver = false;
+
+        function drawSpaceship() {
+            ctx.fillStyle = 'white';
+            ctx.fillRect(spaceship.x, spaceship.y, spaceship.width, spaceship.height);
+        }
+
+        function drawBullets() {
+            ctx.fillStyle = 'blue';
+            spaceship.bullets.forEach(bullet => {
+                ctx.fillRect(bullet.x, bullet.y, bullet.width, bullet.height);
+            });
+        }
+
+        function drawEnemies() {
+            ctx.fillStyle = 'red';
+            enemies.forEach(enemy => {
+                ctx.fillRect(enemy.x, enemy.y, enemy.width, enemy.height);
+            });
+        }
+
+        function updateBullets() {
+            spaceship.bullets.forEach((bullet, index) => {
+                bullet.y -= bulletSpeed;
+                if (bullet.y < 0) {
+                    spaceship.bullets.splice(index, 1);
+                }
+            });
+        }
+
+        function updateEnemies() {
+            enemies.forEach((enemy, index) => {
+                enemy.y += enemySpeed;
+                if (enemy.y > canvas.height) {
+                    enemies.splice(index, 1);
+                }
+            });
+        }
+
+        function checkCollisions() {
+            spaceship.bullets.forEach((bullet, bulletIndex) => {
+                enemies.forEach((enemy, enemyIndex) => {
+                    if (
+                        bullet.x < enemy.x + enemy.width &&
+                        bullet.x + bullet.width > enemy.x &&
+                        bullet.y < enemy.y + enemy.height &&
+                        bullet.y + bullet.height > enemy.y
+                    ) {
+                        spaceship.bullets.splice(bulletIndex, 1);
+                        enemies.splice(enemyIndex, 1);
+                        score += 10;
+                    }
+                });
+            });
+
+            enemies.forEach((enemy) => {
+                if (
+                    spaceship.x < enemy.x + enemy.width &&
+                    spaceship.x + spaceship.width > enemy.x &&
+                    spaceship.y < enemy.y + enemy.height &&
+                    spaceship.y + spaceship.height > enemy.y
+                ) {
+                    gameOver = true;
+                }
+            });
+        }
+
+        function spawnEnemy() {
+            const enemy = {
+                x: Math.random() * (canvas.width - 50),
+                y: 0,
+                width: 50,
+                height: 50
+            };
+            enemies.push(enemy);
+        }
+
+        function updateGame() {
+            if (gameOver) {
+                ctx.fillStyle = 'white';
+                ctx.font = '30px Arial';
+                ctx.fillText('Game Over', canvas.width / 2 - 75, canvas.height / 2);
+                ctx.fillText(`Score: ${score}`, canvas.width / 2 - 50, canvas.height / 2 + 40);
+                return;
+            }
+
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            drawSpaceship();
+            drawBullets();
+            drawEnemies();
+            updateBullets();
+            updateEnemies();
+            checkCollisions();
+
+            ctx.fillStyle = 'white';
+            ctx.font = '20px Arial';
+            ctx.fillText(`Score: ${score}`, 10, 20);
+
+            requestAnimationFrame(updateGame);
+        }
+
+        document.addEventListener('keydown', event => {
+            if (event.key === 'ArrowLeft' && spaceship.x > 0) {
+                spaceship.x -= spaceship.speed;
+            } else if (event.key === 'ArrowRight' && spaceship.x < canvas.width - spaceship.width) {
+                spaceship.x += spaceship.speed;
+            } else if (event.key === ' ') {
+                spaceship.bullets.push({
+                    x: spaceship.x + spaceship.width / 2 - 2.5,
+                    y: spaceship.y,
+                    width: 5,
+                    height: 10
+                });
+            }
+        });
+
+        setInterval(spawnEnemy, 1000);
+        updateGame();
+    </script>
+</body>
+</html>
+<p>what is new in this game:</p>
+<p>faster ship speed for turning<br>scoring</p>
